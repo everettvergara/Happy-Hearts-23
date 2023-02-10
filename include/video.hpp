@@ -36,6 +36,10 @@ namespace eg
                 throw std::runtime_error("Could not create window.");
         }
 
+        virtual auto init() -> void
+        {
+        }
+
         virtual auto update() -> void
         {
         }
@@ -44,11 +48,13 @@ namespace eg
         {
             bool quit = false;
 
-
+            init();
 
             do
             {
                 auto start = SDL_GetTicks();
+
+                update();
 
                 SDL_Event e; 
                 while(SDL_PollEvent(&e))

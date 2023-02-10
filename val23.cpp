@@ -2,11 +2,11 @@
 #include <SDL.h>
 
 #include "video_init.hpp"
-#include "video.hpp"
+#include "val23.hpp"
 
 using eg::video_init;
 using eg::video_quit;
-using eg::video;
+using eg::val23;
 
 auto main(int, char *[]) -> int
 {
@@ -14,13 +14,13 @@ auto main(int, char *[]) -> int
     {
         video_init();
 
-        auto val23  = video();
-        val23.create_win("Happy Heart's 23", 1024, 768);
-        val23.run();
+        auto animation = val23();
+        animation.create_win("Happy Heart's 23", 1024, 768);
+        animation.run();
 
         video_quit();
 
-    } catch(const std::exception& e)
+    } catch(const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         return -1;
