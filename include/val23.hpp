@@ -9,7 +9,7 @@ namespace eg
     struct point
     {
         Sint32 x, y;
-        Uint32 c;
+        Uint8 c;
     };
 
     class val23 : public video 
@@ -20,8 +20,10 @@ namespace eg
         const Sint32 heart_r_  = 75;
         const Sint32 heart_points_ = 360 * 10;
         const Sint32 init_burn_ = 20;
+        
         std::vector<point> heart_;
         std::vector<Uint32> heart_pal_;
+        std::vector<Uint8> heart_surface_;
 
 
     inline auto pset(SDL_Surface *surface, int x, int y, Uint32 c)
@@ -43,9 +45,15 @@ namespace eg
 
         auto init() -> void override
         {
+            // Reset to black
             auto surface = SDL_GetWindowSurface(win_);
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
+            
+            // Full Heart Surface
+            auto full_size = surface->w * surface->h;
+            heart_surface_.resize(full_size, 0);
 
+            // Generate Heart Pixels
             heart_.reserve(heart_points_ + 1);
             
             const auto pi2 = M_PI * 2.0;
@@ -58,7 +66,11 @@ namespace eg
                 auto r = 2.0 - 2.0 * SDL_sin(i) + SDL_sin(i) * SDL_sqrt(abs_cosi) / (SDL_sin(i) + 1.4);
                 auto x = cx + r * heart_r_ * SDL_cos(i);
                 auto y = cy - r * heart_r_ * SDL_sin(i);
-                heart_.emplace_back(x, y, 255 - rand() % init_burn_);
+                auto c = 255 - rand() % init_burn_;
+                heart_.emplace_back(x, y, c);
+
+                auto hi = y * surface->w + x;
+                heart_surface_.at(hi) = c;
             }
             auto heart_pal = get_palette_gradient(
                                 surface->format, {
@@ -78,10 +90,28 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
 
             // Pset Heart to buff
-            for (const auto [x, y, c] : heart_)
+            for (auto &[x, y, c] : heart_)
             {
                 pset(surface, x, y, heart_pal_.at(c));
+                c = 255 - rand() % init_burn_;
             }
+
+            // Fire effect
+            // auto e = surface->h * surface->w - surface->w - surface->w;
+            // auto data = static_cast<Uint32 *>(surface->pixels);
+            // for (auto i = 0; i < e; ++i)
+            // {
+
+            //     auto new_c =    (
+            //                     heart_surface_.at(i + surface->w) + 
+            //                     heart_surface_.at(i + surface->w - 1) + 
+            //                     heart_surface_.at(i + surface->w + 2) + 
+            //                     heart_surface_.at(i + surface->w + surface->w)
+            //                     ) / 4.0125;
+
+            //     *(data + i) = heart_pal_.at(new_c);
+            // }
+            
         }
 
     };
