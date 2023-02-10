@@ -21,7 +21,7 @@ namespace eg
         {
         }
 
-        ~video()
+        virtual ~video()
         {
             if (win_) SDL_DestroyWindow(win_);
         }
@@ -35,17 +35,35 @@ namespace eg
             if (win_ == NULL) 
                 throw std::runtime_error("Could not create window.");
         }
-        
+
+        virtual auto update() -> void
+        {
+        }
+
         auto run()
         {
             bool quit = false;
+
+
+
             do
             {
+                auto start = SDL_GetTicks();
+
                 SDL_Event e; 
                 while(SDL_PollEvent(&e))
                 { 
-                    if(e.type == SDL_QUIT) quit = true; 
+                    if (e.type == SDL_QUIT) 
+                    {
+                        quit = true;
+                        break; 
+                    }
                 } 
+
+                // Perform delay
+                if (auto elapsed = SDL_GetTicks() - start;
+                    elapsed < MSPF_) SDL_Delay(MSPF_ - elapsed);
+
             } while (not quit);
             
         }
