@@ -1,50 +1,38 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <boost/range/combine.hpp>
 
 #include "video.hpp"
 #include "pal.hpp"
-#include "common.hpp"
-#include "heart.hpp"
+#include "heart_anim.hpp"
 
 namespace eg
 {
     class val23 : public video 
     {
     private:
-        const Sint32 cx = 1024 / 2;
-        const Sint32 cy = 768 / 2;
+        // const Sint32 cx = 1024 / 2;
+        // const Sint32 cy = 768 / 2;
 
-        heart heart_;
+        std::vector<std::unique_ptr<heart_anim>> hearts_;
 
-        FP rot = 0.0;
-        FP rot_n = 0.025;
-        FP rot_min = -1.0;
-        FP rot_max = +1.0;
+        // FP rot = 0.0;
+        // FP rot_n = 0.025;
+        // FP rot_min = -1.0;
+        // FP rot_max = +1.0;
 
-        FP rad = 40.0;
-        FP rad_n = 1.0;
-        FP rad_min = 25.0;
-        FP rad_max = 80.0;
+        // FP rad = 40.0;
+        // FP rad_n = 1.0;
+        // FP rad_min = 25.0;
+        // FP rad_max = 80.0;
 
 
         std::vector<Uint32> heart_pal_;
         std::vector<Uint8> heart_surface_;
 
 
-    inline auto pset(SDL_Surface *surface, int x, int y, Uint32 c)
-    {
-        auto data = static_cast<Uint32 *>(surface->pixels);
-        *(data + surface->w * y + x) = c;
-    }
-
-    inline auto pset(SDL_Surface *surface, int ix, Uint32 c)
-    {
-        auto data = static_cast<Uint32 *>(surface->pixels);
-        *(data + ix) = c;
-    }
-                
     public:
 
         val23()
@@ -71,24 +59,28 @@ namespace eg
                                     {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
                                     });
 
-            // auto heart_pal = get_palette_gradient(
-            //                     surface->format, {
-            //                         {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
-            //                         {50,    SDL_MapRGBA(surface->format, 100, 0, 100, 255)},
-            //                         {100,   SDL_MapRGBA(surface->format, 0, 174, 255, 255)},
-            //                         {150,   SDL_MapRGBA(surface->format, 0, 255, 255, 255)},
-            //                         {255,   SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
-            //                         });
-                                    
             heart_pal_ = std::move(heart_pal.value());
 
 
             auto full_size = surface->w * surface->h;
             heart_surface_.resize(full_size, 0);
 
-            heart_.recalc(surface->w, cx, cy, 75.0, rot);
-            for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
-                heart_surface_.at(ix) = c;
+            hearts_.emplace_back(std::make_unique<heart_anim>(
+                                    1440, 255, 5,
+                                    1024 / 2, 768 / 2,
+                                    0, 0.0625, -1.0, +1.0,
+                                    40.0, 5, 25.0, 60.0));
+
+
+            hearts_.emplace_back(std::make_unique<heart_anim>(
+                                    1440, 255, 3,
+                                    1024 / 2 + 1024 / 4, 768 / 3,
+                                    
+                                    0, 0.0625, -M_PI2, +M_PI2,
+                                    40.0, -1, 10.0, 50.0));
+
+
+
         }
 
         auto update() -> void override
@@ -97,19 +89,25 @@ namespace eg
             // Get handle to surface
             auto surface = SDL_GetWindowSurface(win_);
 
-
-            rot += rot_n;
-            if (rot_n > 0 and rot >= rot_max) rot_n *= -1;
-            else if (rot_n < 0 and rot <= rot_min) rot_n *= -1;
-
-            rad += rad_n;
-            if (rad_n > 0 and rad >= rad_max) rad_n *= -1;
-            else if (rad_n < 0 and rad <= rad_min) rad_n *= -1;
+            // Animate hearts
+            for (auto &h : hearts_)
+                h->animate(heart_surface_, surface->w);
 
 
-            heart_.recalc(surface->w, cx, cy, rad, rot);
-            for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
-                heart_surface_.at(ix) = c;
+            // Add Hell
+            // auto last_row = (surface->h - 2) * surface->w;
+            // for (int i = 0; i < surface->w; ++i)
+            // {
+            //     heart_surface_.at(last_row + i) = rand() % 200;
+            // }
+
+            // // Add Hell Fire
+            // int a = 12345, b = 1103515245, rnd = a;
+            // for (int i = 0; i < 1000; ++i)
+            // {
+            //     heart_surface_.at(rnd % heart_surface_.size()) = rand() % 100;
+            //     rnd = (b * rnd + 1);
+            // }
 
             // Fire effect
             auto e = (surface->h * surface->w) - surface->w - surface->w;
@@ -120,8 +118,8 @@ namespace eg
                                 heart_surface_.at(i + surface->w) + 
                                 heart_surface_.at(i + surface->w - 1) + 
                                 heart_surface_.at(i + surface->w + 2) + 
-                                heart_surface_.at(i + surface->w + surface->w)
-                                ) / 4.0625;
+                                heart_surface_.at(i + 1)
+                                ) / 4.03125;
 
                 *(data + i) = heart_pal_.at(new_c);
                 heart_surface_.at(i) = new_c;
