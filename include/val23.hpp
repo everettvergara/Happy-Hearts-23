@@ -29,7 +29,13 @@ namespace eg
     inline auto pset(SDL_Surface *surface, int x, int y, Uint32 c)
     {
         auto data = static_cast<Uint32 *>(surface->pixels);
-        *(data + surface->w * y + surface->w + x) = c;
+        *(data + surface->w * y + x) = c;
+    }
+
+    inline auto pset(SDL_Surface *surface, int ix, Uint32 c)
+    {
+        auto data = static_cast<Uint32 *>(surface->pixels);
+        *(data + ix) = c;
     }
 
 
@@ -51,7 +57,8 @@ namespace eg
             
             // Full Heart Surface
             auto full_size = surface->w * surface->h;
-            heart_surface_.resize(full_size, 0);
+            for(auto i = 0; i < full_size; ++i)
+                heart_surface_.emplace_back(0); // resize(full_size, 0);
 
             // Generate Heart Pixels
             heart_.reserve(heart_points_ + 1);
@@ -69,6 +76,8 @@ namespace eg
                 auto c = 255 - rand() % init_burn_;
                 
                 auto ix = y * surface->w + x;
+
+                // pset(surface, x, y, 255);
 
                 heart_.emplace_back(ix);
                 heart_surface_.at(ix) = c;
@@ -88,29 +97,31 @@ namespace eg
 
         auto update() -> void override
         {
-            // Get handle to surface
-            auto surface = SDL_GetWindowSurface(win_);
 
-            // Update Heart Surface
-            for (auto ix : heart_)
-                heart_surface_.at(ix) = 255 - rand() % init_burn_;
+            // // Get handle to surface
+            // auto surface = SDL_GetWindowSurface(win_);
 
-            // Fire effect
-            auto e = surface->h * surface->w - surface->w - surface->w;
-            auto data = static_cast<Uint32 *>(surface->pixels);
-            for (auto i = 0; i < e; ++i)
-            {
+            // // Update Heart Surface
+            // for (auto ix : heart_)
+            //     heart_surface_.at(ix) = 255 - rand() % init_burn_;
 
-                auto new_c =    (
-                                heart_surface_.at(i + surface->w) + 
-                                heart_surface_.at(i + surface->w - 1) + 
-                                heart_surface_.at(i + surface->w + 2) + 
-                                heart_surface_.at(i + surface->w + surface->w)
-                                ) / 4.125;
+            // // Fire effect
+            // auto e = (surface->h * surface->w) - surface->w - surface->w;
+            // auto data = static_cast<Uint32 *>(surface->pixels);
+            // for (auto i = 0; i < e; ++i)
+            // {
+            //     auto new_c = heart_surface_.at(i);
 
-                *(data + i) = heart_pal_.at(new_c);
-                heart_surface_.at(i) = new_c;
-            }
+            //     // auto new_c =    (
+            //     //                 heart_surface_.at(i + surface->w) + 
+            //     //                 heart_surface_.at(i + surface->w - 1) + 
+            //     //                 heart_surface_.at(i + surface->w + 2) + 
+            //     //                 heart_surface_.at(i + surface->w + surface->w)
+            //     //                 ) / 4.125;
+
+            //     *(data + i) = heart_pal_.at(new_c);
+            //     //heart_surface_.at(i) = new_c;
+            // }
             
         }
 
