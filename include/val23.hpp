@@ -18,6 +18,11 @@ namespace eg
 
         heart heart_;
         FP rot = 0.0;
+        FP rot_n = 0.01;
+        FP rot_min = -1.0;
+        FP rot_max = +1.0;
+        FP rot_m = rot_max;
+
         std::vector<Uint32> heart_pal_;
         std::vector<Uint8> heart_surface_;
 
@@ -64,6 +69,7 @@ namespace eg
 
             auto full_size = surface->w * surface->h;
             heart_surface_.resize(full_size, 0);
+
             heart_.recalc(surface->w, cx, cy, 75.0, rot);
             for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
                 heart_surface_.at(ix) = c;
@@ -76,7 +82,10 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
 
 
-            rot += 0.05;
+            rot += rot_n;
+            if (rot_n > 0 and rot >= rot_max) rot_n *= -1;
+            else if (rot_n < 0 and rot <= rot_min) rot_n *= -1;
+
             heart_.recalc(surface->w, cx, cy, 75.0, rot);
             for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
                 heart_surface_.at(ix) = c;
@@ -96,7 +105,6 @@ namespace eg
                 *(data + i) = heart_pal_.at(new_c);
                 heart_surface_.at(i) = new_c;
             }
-            
         }
 
     };

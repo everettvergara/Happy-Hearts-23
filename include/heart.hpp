@@ -28,8 +28,8 @@ namespace eg
         heart(Sint pts = 500, Sint ini_burn = 255, Sint distort = 2)
             : pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts)
         {
-            heart_.reserve(pts + 1);
-            heart_col_.reserve(pts + 1);
+            heart_.resize(pts + 1, 0);
+            heart_col_.resize(pts + 1, 0);
             heart_r_cache_.reserve(pts + 1);
             heart_cos_cache_.reserve(pts + 1);
             heart_sin_cache_.reserve(pts + 1);
@@ -70,7 +70,7 @@ namespace eg
                 auto y = heart_sin_cache_.at(i) * SDL_cos(rot) + heart_cos_cache_.at(i) * SDL_sin(rot);
                 
                 auto nx = static_cast<Sint>(cx + rad * heart_r_cache_.at(i) * x);
-                auto ny = static_cast<Sint>(cy + rad * heart_r_cache_.at(i) * y);
+                auto ny = static_cast<Sint>(cy - rad * heart_r_cache_.at(i) * y);
 
                 nx -= distort_ + rand() % (1 + distort_ * 2);
                 ny -= distort_ + rand() % (1 + distort_ * 2);
