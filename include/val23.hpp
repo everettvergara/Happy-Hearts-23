@@ -16,6 +16,7 @@ namespace eg
         const Sint32 heart_points_ = 500;
         const Sint32 init_burn_ = 255;
         const Sint32 heart_distort_ = 10;
+        double rotation = 0.0;
         
         std::vector<Uint32> heart_;
         std::vector<Uint32> heart_pal_;
@@ -61,20 +62,33 @@ namespace eg
             const auto pi2 = M_PI * 2.0;
             const auto inc = pi2 / heart_points_;
 
+            rotation = M_PI / 2.0;
+
             for (auto i = 0.0, ctr = 0.0; i < pi2; i += inc, ctr = ctr + 1)
             {
                 auto cosi = SDL_cos(i);
                 auto abs_cosi = cosi < 0 ? -cosi : cosi;
                 auto r = 2.0 - 2.0 * SDL_sin(i) + SDL_sin(i) * SDL_sqrt(abs_cosi) / (SDL_sin(i) + 1.4);
-                auto x = static_cast<Sint32>(cx + r * heart_r_ * SDL_cos(i));
-                auto y = static_cast<Sint32>(cy - r * heart_r_ * SDL_sin(i));
+                // auto x = cx + r * heart_r_ * SDL_cos(i);
+                // auto y = cy - r * heart_r_ * SDL_sin(i);
+                auto x = SDL_cos(i);
+                auto y = SDL_sin(i);
+                auto nx = x * SDL_cos(rotation) - y * SDL_sin(rotation);
+                auto ny = y * SDL_cos(rotation) + x * SDL_sin(rotation);
 
-                x = x - heart_distort_ + rand() % (1 + heart_distort_ * 2);
-                y = y - heart_distort_ + rand() % (1 + heart_distort_ * 2);
+                x = cx + r * heart_r_ * nx;
+                y = cy - r * heart_r_ * ny;
+
+
+                auto xp = static_cast<Sint32>(x);
+                auto yp = static_cast<Sint32>(y);
+
+                xp = xp - heart_distort_ + rand() % (1 + heart_distort_ * 2);
+                yp = yp - heart_distort_ + rand() % (1 + heart_distort_ * 2);
 
                 auto c = 255 - rand() % init_burn_;
                 
-                auto ix = surface->w * y + x;
+                auto ix = surface->w * yp + xp;
                 heart_.emplace_back(ix);
                 heart_surface_.at(ix) = c;
             }
@@ -97,9 +111,10 @@ namespace eg
             // Get handle to surface
             auto surface = SDL_GetWindowSurface(win_);
 
-            // Update Heart Surface
             for (auto ix : heart_)
+            {
                 heart_surface_.at(ix) = 255 - rand() % init_burn_;
+            }
 
             // Fire effect
             auto e = (surface->h * surface->w) - surface->w - surface->w;
