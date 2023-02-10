@@ -5,26 +5,16 @@
 
 namespace eg
 {
-    class video_init
-    {
-    public:
-        video_init()
-        {
-            if (auto t = SDL_Init(SDL_INIT_VIDEO); t < 0) 
-                throw std::runtime_error("Could not init SDL Video!");
-        }
-        ~video_init()
-        {
-            SDL_Quit();
-        }
-    };
+
+    constexpr int   FPS_    = 60;
+    constexpr int   MSPF_   = 1000 / FPS_;
 
     class video
     {
-    private:
-        SDL_Window *win_ = NULL;
-        
 
+    private:
+        SDL_Window      *win_   = NULL;
+        
     public:
 
         video()
@@ -46,6 +36,19 @@ namespace eg
                 throw std::runtime_error("Could not create window.");
         }
         
+        auto run()
+        {
+            bool quit = false;
+            do
+            {
+                SDL_Event e; 
+                while(SDL_PollEvent(&e))
+                { 
+                    if(e.type == SDL_QUIT) quit = true; 
+                } 
+            } while (not quit);
+            
+        }
     };
 
 }

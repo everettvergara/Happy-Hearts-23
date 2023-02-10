@@ -16,10 +16,11 @@ auto main(int, char *[]) -> int
 
         auto val23  = video();
         val23.create_win("Happy Heart's 23", 1024, 768);
+        val23.run();
 
         video_quit();
-    }
-    catch(const std::exception& e)
+
+    } catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
         return -1;
@@ -27,3 +28,4 @@ auto main(int, char *[]) -> int
     
     return 0;
 }
+
