@@ -60,16 +60,16 @@ namespace eg
                 auto y = cy - r * heart_r_ * SDL_sin(i);
                 heart_.emplace_back(x, y, 255 - rand() % init_burn_);
             }
-            // auto heart_pal = get_palette_gradient(
-            //                     surface->format, {
-            //                         {0,     SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
-            //                         {50,    SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
-            //                         {100,    SDL_MapRGBA(surface->format, 255, 174, 0, 255)},
-            //                         {150,    SDL_MapRGBA(surface->format, 255, 60, 0, 255)},
-            //                         {255,    SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
-            //                         });
+            auto heart_pal = get_palette_gradient(
+                                surface->format, {
+                                    {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
+                                    {50,    SDL_MapRGBA(surface->format, 255, 60, 0, 255)},
+                                    {100,    SDL_MapRGBA(surface->format, 255, 174, 0, 255)},
+                                    {150,    SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
+                                    {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
+                                    });
             
-            // heart_pal_ = std::move(heart_pal.value());
+            heart_pal_ = std::move(heart_pal.value());
         }
 
         auto update() -> void override
@@ -78,10 +78,9 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
 
             // Pset Heart to buff
-            // int ctr = 0;
             for (const auto [x, y, c] : heart_)
             {
-                pset(surface, x, y, 255);
+                pset(surface, x, y, heart_pal_.at(c));
             }
         }
 
