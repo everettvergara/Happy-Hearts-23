@@ -12,7 +12,7 @@ namespace eg
     class video
     {
 
-    private:
+    protected:
         SDL_Window      *win_   = NULL;
         
     public:
