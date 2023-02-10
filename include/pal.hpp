@@ -6,6 +6,7 @@
 #include <tuple>
 #include <optional>
 #include <SDL.h>
+#include "common.hpp"
 
 namespace eg {
 

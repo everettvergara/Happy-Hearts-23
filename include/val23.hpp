@@ -3,6 +3,7 @@
 #include <vector>
 #include "video.hpp"
 #include "pal.hpp"
+#include "common.hpp"
 
 namespace eg
 {
