@@ -17,9 +17,9 @@ namespace eg
     private:
         const Sint32 cx = 1024 / 2;
         const Sint32 cy = 768 / 2;
-        const Sint32 heart_r_  = 300;
+        const Sint32 heart_r_  = 75;
         const Sint32 heart_points_ = 360 * 10;
-        
+        const Sint32 init_burn_ = 20;
         std::vector<point> heart_;
         std::vector<Uint32> heart_pal_;
 
@@ -53,10 +53,12 @@ namespace eg
 
             for (auto i = 0.0, ctr = 0.0; i < pi2; i += inc, ctr = ctr + 1)
             {
-                auto r = 2.0 - 2.0 * SDL_sin(i) + SDL_sin(i) * SDL_sqrt(SDL_abs(SDL_cos(i))) / (SDL_sin(i) + 1.4);
+                auto cosi = SDL_cos(i);
+                auto abs_cosi = cosi < 0 ? -cosi : cosi;
+                auto r = 2.0 - 2.0 * SDL_sin(i) + SDL_sin(i) * SDL_sqrt(abs_cosi) / (SDL_sin(i) + 1.4);
                 auto x = cx + r * heart_r_ * SDL_cos(i);
-                auto y = cy + r * heart_r_ * SDL_sin(i);
-                heart_.emplace_back(x, y, 255);
+                auto y = cy - r * heart_r_ * SDL_sin(i);
+                heart_.emplace_back(x, y, 255 - rand() % init_burn_);
             }
             // auto heart_pal = get_palette_gradient(
             //                     surface->format, {
@@ -76,10 +78,11 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
 
             // Pset Heart to buff
-            // for (const auto [x, y, c] : heart_)
-            // {
-            //     pset(surface, x, y, 255);
-            // }
+            // int ctr = 0;
+            for (const auto [x, y, c] : heart_)
+            {
+                pset(surface, x, y, 255);
+            }
         }
 
     };
