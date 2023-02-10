@@ -21,26 +21,30 @@ namespace eg
     class video
     {
     private:
-        SDL_Window *win_;
-
-
-        auto throw_if_winnull(SDL_Window *test) -> SDL_Window *
-        {
-            if (test == NULL) 
-                throw std::runtime_error("Could not create window");
-
-            return test;
-        }
+        SDL_Window *win_ = NULL;
+        
 
     public:
 
-        video(const char *title, int w, int h)
-            : win_(throw_if_winnull(
-                    SDL_CreateWindow(
-                        title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_SHOWN)))
+        video()
         {
-        
         }
+
+        ~video()
+        {
+            if (win_) SDL_DestroyWindow(win_);
+        }
+
+        auto create_win(const char *title, int w, int h)
+        {
+            win_    =   SDL_CreateWindow(
+                            title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+                            w, h, SDL_WINDOW_SHOWN);
+
+            if (win_ == NULL) 
+                throw std::runtime_error("Could not create window.");
+        }
+
     };
 
 }
@@ -53,7 +57,9 @@ auto main(int, char *[]) -> int
     try
     {
         auto init   = video_init();
-        auto val23  = video("Happy Hearts 23", 1024, 768);
+        auto val23  = video();
+        
+        val23.create_win("Happy Heart's 23", 1024, 768);
     }
     catch(const std::exception& e)
     {
