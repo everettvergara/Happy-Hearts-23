@@ -55,6 +55,7 @@ namespace eg
                 auto start = SDL_GetTicks();
 
                 update();
+                SDL_UpdateWindowSurface(win_);
 
                 SDL_Event e; 
                 while(SDL_PollEvent(&e))

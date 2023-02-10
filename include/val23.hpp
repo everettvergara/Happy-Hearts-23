@@ -19,6 +19,14 @@ namespace eg
         const Sint32 heart_points_ = 360 * 10;
         std::vector<point> heart_;
 
+
+    inline auto pset(SDL_Surface *surface, int x, int y, Uint32 c)
+    {
+        auto data = static_cast<Uint32 *>(surface->pixels);
+        *(data + surface->w * y + surface->w + x) = c;
+    }
+
+
     public:
 
         val23()
@@ -50,6 +58,15 @@ namespace eg
 
         auto update() -> void override
         {
+            // Get handle to surface
+            auto surface = SDL_GetWindowSurface(win_);
+
+            // Pset Heart to buff
+            for (const auto [x, y] : heart_)
+            {
+                Uint32 c = 0;
+                pset(surface, x, y, c);
+            }
         }
 
     };
