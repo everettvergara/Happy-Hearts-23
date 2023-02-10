@@ -17,11 +17,17 @@ namespace eg
         const Sint32 cy = 768 / 2;
 
         heart heart_;
+
         FP rot = 0.0;
-        FP rot_n = 0.01;
+        FP rot_n = 0.05;
         FP rot_min = -1.0;
         FP rot_max = +1.0;
-        FP rot_m = rot_max;
+
+        FP rad = 40.0;
+        FP rad_n = 1.0;
+        FP rad_min = 40.0;
+        FP rad_max = 75.0;
+
 
         std::vector<Uint32> heart_pal_;
         std::vector<Uint8> heart_surface_;
@@ -86,7 +92,12 @@ namespace eg
             if (rot_n > 0 and rot >= rot_max) rot_n *= -1;
             else if (rot_n < 0 and rot <= rot_min) rot_n *= -1;
 
-            heart_.recalc(surface->w, cx, cy, 75.0, rot);
+            rad += rad_n;
+            if (rad_n > 0 and rad >= rad_max) rad_n *= -1;
+            else if (rad_n < 0 and rad <= rad_min) rad_n *= -1;
+
+
+            heart_.recalc(surface->w, cx, cy, rad, rot);
             for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
                 heart_surface_.at(ix) = c;
 
