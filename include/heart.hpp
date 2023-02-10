@@ -25,7 +25,7 @@ namespace eg
 
     public:
 
-        heart(Sint pts = 500, Sint ini_burn = 255, Sint distort = 2)
+        heart(const Sint pts = 720, const Sint ini_burn = 255, const Sint distort = 5)
             : pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts)
         {
             heart_.resize(pts + 1, 0);

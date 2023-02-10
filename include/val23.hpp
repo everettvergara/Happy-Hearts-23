@@ -19,14 +19,14 @@ namespace eg
         heart heart_;
 
         FP rot = 0.0;
-        FP rot_n = 0.05;
+        FP rot_n = 0.025;
         FP rot_min = -1.0;
         FP rot_max = +1.0;
 
         FP rad = 40.0;
         FP rad_n = 1.0;
-        FP rad_min = 40.0;
-        FP rad_max = 75.0;
+        FP rad_min = 25.0;
+        FP rad_max = 80.0;
 
 
         std::vector<Uint32> heart_pal_;
@@ -70,6 +70,16 @@ namespace eg
                                     {150,    SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
                                     {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
                                     });
+
+            // auto heart_pal = get_palette_gradient(
+            //                     surface->format, {
+            //                         {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
+            //                         {50,    SDL_MapRGBA(surface->format, 100, 0, 100, 255)},
+            //                         {100,   SDL_MapRGBA(surface->format, 0, 174, 255, 255)},
+            //                         {150,   SDL_MapRGBA(surface->format, 0, 255, 255, 255)},
+            //                         {255,   SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
+            //                         });
+                                    
             heart_pal_ = std::move(heart_pal.value());
 
 
