@@ -1,9 +1,12 @@
 #pragma once
 
 #include <vector>
+#include <boost/range/combine.hpp>
+
 #include "video.hpp"
 #include "pal.hpp"
 #include "common.hpp"
+#include "heart.hpp"
 
 namespace eg
 {
@@ -12,13 +15,9 @@ namespace eg
     private:
         const Sint32 cx = 1024 / 2;
         const Sint32 cy = 768 / 2;
-        const Sint32 heart_r_  = 75;
-        const Sint32 heart_points_ = 500;
-        const Sint32 init_burn_ = 255;
-        const Sint32 heart_distort_ = 10;
-        double rotation = 0.0;
-        
-        std::vector<Uint32> heart_;
+
+        heart heart_;
+        FP rot = 0.0;
         std::vector<Uint32> heart_pal_;
         std::vector<Uint8> heart_surface_;
 
@@ -51,48 +50,7 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
             
-            // Full Heart Surface
-            auto full_size = surface->w * surface->h;
-            for(auto i = 0; i < full_size; ++i)
-                heart_surface_.emplace_back(0); // resize(full_size, 0);
-
-            // Generate Heart Pixels
-            heart_.reserve(heart_points_ + 1);
-            
-            const auto pi2 = M_PI * 2.0;
-            const auto inc = pi2 / heart_points_;
-
-            rotation = M_PI / 2.0;
-
-            for (auto i = 0.0, ctr = 0.0; i < pi2; i += inc, ctr = ctr + 1)
-            {
-                auto cosi = SDL_cos(i);
-                auto abs_cosi = cosi < 0 ? -cosi : cosi;
-                auto r = 2.0 - 2.0 * SDL_sin(i) + SDL_sin(i) * SDL_sqrt(abs_cosi) / (SDL_sin(i) + 1.4);
-                // auto x = cx + r * heart_r_ * SDL_cos(i);
-                // auto y = cy - r * heart_r_ * SDL_sin(i);
-                auto x = SDL_cos(i);
-                auto y = SDL_sin(i);
-                auto nx = x * SDL_cos(rotation) - y * SDL_sin(rotation);
-                auto ny = y * SDL_cos(rotation) + x * SDL_sin(rotation);
-
-                x = cx + r * heart_r_ * nx;
-                y = cy - r * heart_r_ * ny;
-
-
-                auto xp = static_cast<Sint32>(x);
-                auto yp = static_cast<Sint32>(y);
-
-                xp = xp - heart_distort_ + rand() % (1 + heart_distort_ * 2);
-                yp = yp - heart_distort_ + rand() % (1 + heart_distort_ * 2);
-
-                auto c = 255 - rand() % init_burn_;
-                
-                auto ix = surface->w * yp + xp;
-                heart_.emplace_back(ix);
-                heart_surface_.at(ix) = c;
-            }
-
+            // Generate Palette
             auto heart_pal = get_palette_gradient(
                                 surface->format, {
                                     {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
@@ -101,8 +59,14 @@ namespace eg
                                     {150,    SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
                                     {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
                                     });
-            
             heart_pal_ = std::move(heart_pal.value());
+
+
+            auto full_size = surface->w * surface->h;
+            heart_surface_.resize(full_size, 0);
+            heart_.recalc(surface->w, cx, cy, 75.0, rot);
+            for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
+                heart_surface_.at(ix) = c;
         }
 
         auto update() -> void override
@@ -111,10 +75,11 @@ namespace eg
             // Get handle to surface
             auto surface = SDL_GetWindowSurface(win_);
 
-            for (auto ix : heart_)
-            {
-                heart_surface_.at(ix) = 255 - rand() % init_burn_;
-            }
+
+            rot += 0.05;
+            heart_.recalc(surface->w, cx, cy, 75.0, rot);
+            for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
+                heart_surface_.at(ix) = c;
 
             // Fire effect
             auto e = (surface->h * surface->w) - surface->w - surface->w;

@@ -35,7 +35,7 @@ namespace eg
             heart_sin_cache_.reserve(pts + 1);
 
             // Compute for R of heart
-            for (auto i = 0.0, ctr = 0.0; i < M_PI2; i += inc_)
+            for (auto i = 0.0; i < M_PI2; i += inc_)
             {
                 auto cosi = SDL_cos(i);
                 auto abs_cosi = cosi < 0 ? -cosi : cosi;
@@ -45,6 +45,11 @@ namespace eg
                 heart_cos_cache_.emplace_back(SDL_cos(i));
                 heart_sin_cache_.emplace_back(SDL_sin(i));
             }
+        }
+
+        auto get_pts() const -> Sint 
+        {
+            return pts_;
         }
 
         auto get_heart() const -> const std::vector<Uint> &
