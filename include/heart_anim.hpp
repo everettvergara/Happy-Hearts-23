@@ -11,7 +11,6 @@ namespace eg
     private:
         heart heart_;
         
-        // Sint x_, y_;
         Sint cx_, cy_;
 
         FP rot_ = 0.0;

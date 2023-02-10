@@ -67,7 +67,6 @@ namespace eg
                     }
                 } 
 
-                // Perform delay
                 if (auto elapsed = SDL_GetTicks() - start;
                     elapsed < MSPF_) SDL_Delay(MSPF_ - elapsed);
 

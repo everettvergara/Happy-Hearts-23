@@ -15,7 +15,7 @@ auto main(int, char *[]) -> int
         video_init();
 
         auto animation = val23();
-        animation.create_win("Happy Heart's 23", 1024, 768);
+        animation.create_win("Happy Heart's Day Nerds!!!", 1024, 768);
         animation.run();
 
         video_quit();

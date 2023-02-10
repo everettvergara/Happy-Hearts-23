@@ -19,21 +19,13 @@ namespace eg
 
     public:
 
-        val23()
-        {
-        }
-
-        ~val23()
-        {
-        }
-
         auto init() -> void override
         {
             // Reset to black
             auto surface = SDL_GetWindowSurface(win_);
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
             
-            // Generate Palette
+            // Fire Palette
             // auto heart_pal = get_palette_gradient(
             //                     surface->format, {
             //                         {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
@@ -43,6 +35,7 @@ namespace eg
             //                         {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
             //                         });
 
+            // Posh Pink Palette
             auto heart_pal = get_palette_gradient(
                                 surface->format, {
                                     {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
