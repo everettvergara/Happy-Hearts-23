@@ -12,23 +12,24 @@ namespace eg
     
     private:
         
-        Sint                r_;
         Sint                pts_;
         Sint                ini_burn_;
         Sint                distort_;
         const FP            inc_;
 
         std::vector<Uint>   heart_;
+        std::vector<Uint>   heart_col_;
         std::vector<FP>     heart_r_cache_;
         std::vector<FP>     heart_cos_cache_;
         std::vector<FP>     heart_sin_cache_;
 
     public:
 
-        heart(Sint r, Sint pts, Sint ini_burn, Sint distort)
-            : r_(r), pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts)
+        heart(Sint pts = 500, Sint ini_burn = 255, Sint distort = 2)
+            : pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts)
         {
             heart_.reserve(pts + 1);
+            heart_col_.reserve(pts + 1);
             heart_r_cache_.reserve(pts + 1);
             heart_cos_cache_.reserve(pts + 1);
             heart_sin_cache_.reserve(pts + 1);
@@ -46,9 +47,34 @@ namespace eg
             }
         }
 
-        auto recalc(Sint cx, Sint cy, FP rot)
+        auto get_heart() const -> const std::vector<Uint> &
         {
-        
+            return heart_;
+        }
+
+        auto get_col() const -> const std::vector<Uint> &
+        {
+            return heart_col_;
+        }
+
+        auto recalc(int w, Sint cx, Sint cy, FP rad, FP rot)
+        {
+            for (auto i = 0; i < pts_; ++i)
+            {
+                auto x = heart_cos_cache_.at(i) * SDL_cos(rot) - heart_sin_cache_.at(i) * SDL_sin(rot);
+                auto y = heart_sin_cache_.at(i) * SDL_cos(rot) + heart_cos_cache_.at(i) * SDL_sin(rot);
+                
+                auto nx = static_cast<Sint>(cx + rad * heart_r_cache_.at(i) * x);
+                auto ny = static_cast<Sint>(cy + rad * heart_r_cache_.at(i) * y);
+
+                nx -= distort_ + rand() % (1 + distort_ * 2);
+                ny -= distort_ + rand() % (1 + distort_ * 2);
+
+                auto ix = w * ny + nx;
+
+                heart_.at(i) = ix; 
+                heart_col_.at(i) = 255 - rand() % ini_burn_;
+            }
         }
     };
 }
