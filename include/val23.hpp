@@ -54,18 +54,22 @@ namespace eg
 
         }
 
-        auto init() -> void override
+        auto init_heart_surface()
         {
-            init_pal();
-
-            // Reset to black
             auto surface = SDL_GetWindowSurface(win_);
-            SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
-
             auto full_size = surface->w * surface->h;
             heart_surface_.resize(full_size, 0);
+        }
 
+        auto init_black_surface()
+        {
+            auto surface = SDL_GetWindowSurface(win_);
+            SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
+        }
 
+        auto init_random_hearts()
+        {
+            hearts_.reserve(3);
             hearts_.emplace_back(std::make_unique<heart_anim>(
                                     1440, 255, 5,
                                     1024 / 2, 768 / 2,
@@ -83,9 +87,15 @@ namespace eg
                                     1024 / 2 + 1024 / 4, 2 * 768 / 3,
                                     0, -0.0625, -4.0, +4.0,
                                     10.0, +5, 10.0, 50.0));
-
         }
 
+        auto init() -> void override
+        {
+            init_pal();
+            init_heart_surface();
+            init_black_surface();
+            init_random_hearts();
+        }
 
         auto event() -> bool override
         {
