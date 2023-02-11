@@ -84,7 +84,10 @@ namespace eg
                     case SDL_QUIT: return false;
                     case SDL_MOUSEWHEEL:
                         fumes_ = fumes_ - (e.wheel.y * 0.01);
-                        SDL_Log("%.6f", fumes_);
+                        
+                        if (fumes_ > 4.5) fumes_ = 4.5;
+                        else if (fumes_ < 3.9) fumes_ = 3.9;
+
                 }
             } 
 
