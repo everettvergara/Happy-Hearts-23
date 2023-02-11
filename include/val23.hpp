@@ -10,6 +10,15 @@
 
 namespace eg
 {
+
+    constexpr size_t random_hearts = 10;
+    constexpr Sint particle_size = 2880;
+    constexpr Sint init_burn = 255;
+    constexpr FP fumes_def = 4.16;
+    constexpr FP fumes_min = 3.9;
+    constexpr FP fumes_max = 4.9;
+    constexpr FP fumes_inc = 0.01;
+
     class val23 : public video 
     {
     private:
@@ -17,9 +26,7 @@ namespace eg
         std::vector<std::vector<Uint32>>            heart_pal_;
         Sint                                        pal_ix_ = 0;
         std::vector<Uint8>                          heart_surface_;
-        FP                                          fumes_ = 4.160;
-        Sint                                        cx_, cy_;
-//        std::vector<std::tuple<Sint, Sint>>         offset_;
+        FP                                          fumes_ = fumes_def;
         int                                         surface_size_;
 
     public:
@@ -70,22 +77,15 @@ namespace eg
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
         }
 
-        auto init_random_hearts(const size_t N = 10)
+        auto init_random_hearts()
         {
-            hearts_.reserve(N);
+            hearts_.reserve(random_hearts);
             auto surface = SDL_GetWindowSurface(win_);
-            for (size_t i = 0; i < N; ++i)
+            for (size_t i = 0; i < random_hearts; ++i)
             {
-                auto &hanim = hearts_.emplace_back(std::make_unique<heart_anim>(2880, 255));
+                auto &hanim = hearts_.emplace_back(std::make_unique<heart_anim>(particle_size, init_burn));
                 hanim->random_spawn(surface->w, surface->h);
             }
-        }
-
-        auto init_cxy()
-        {
-            auto surface = SDL_GetWindowSurface(win_);
-            cx_ = surface->w / 2;
-            cy_ = surface->h / 2;
         }
 
         auto init() -> void override
@@ -93,7 +93,6 @@ namespace eg
             init_pal();
             init_heart_surface();
             init_black_surface();
-            init_cxy();
             init_random_hearts();
         }
 
@@ -115,9 +114,9 @@ namespace eg
                         break;
 
                     case SDL_MOUSEWHEEL:
-                        fumes_ = fumes_ - (e.wheel.y * 0.01);
-                        if (fumes_ > 4.5) fumes_ = 4.5;
-                        else if (fumes_ < 3.9) fumes_ = 3.9;
+                        fumes_ = fumes_ - (e.wheel.y * fumes_inc);
+                        if (fumes_ > fumes_max) fumes_ = fumes_max;
+                        else if (fumes_ < fumes_min) fumes_ = fumes_min;
                         break;
                 }
             } 
@@ -140,23 +139,22 @@ namespace eg
             auto last_row = surface->w * (surface->h - 1);
             for (auto i = last_row; i < last_row + surface->w; ++i)
             {
-                if (rand() % 100 >= 99)
+                if (rand() % 100 >= 20)
                 {
-                    auto c = rand() % 255;
+                    auto c = 200 + rand() % 56;
                     heart_surface_.at(i) = c;
                 }
             }
 
             // Fire effect
-            auto e = (surface->h * surface->w) - surface->w - 2;
             auto data = static_cast<Uint32 *>(surface->pixels);
-            for (auto i = 0; i < e; ++i)
+            for (auto i = 0; i < surface_size_; ++i)
             {
                 auto new_c =    static_cast<Sint>((
-                                    heart_surface_.at(i + surface->w) + 
-                                    heart_surface_.at(i + surface->w - 1) + 
-                                    heart_surface_.at(i + surface->w + 2) + 
-                                    heart_surface_.at(i + 1)
+                                    heart_surface_.at((i + surface->w) % surface_size_) + 
+                                    heart_surface_.at((i + surface->w - 1) % surface_size_) + 
+                                    heart_surface_.at((i + surface->w + 2) % surface_size_) + 
+                                    heart_surface_.at((i + 1) % surface_size_)
                                     ) / fumes_);
                 
                 if (new_c > 255) new_c = 255;
