@@ -14,44 +14,57 @@ namespace eg
     {
     private:
         std::vector<std::unique_ptr<heart_anim>>    hearts_;
-        std::vector<Uint32>                         heart_pal_;
+        std::vector<std::vector<Uint32>>            heart_pal_;
+        Sint                                        pal_ix_ = 0;
         std::vector<Uint8>                          heart_surface_;
-        FP                                          fumes_ = 4.0625;
+        FP                                          fumes_ = 4.160;
 
     public:
 
+        auto init_pal()
+        {
+            auto surface = SDL_GetWindowSurface(win_);
+
+            // Posh Pink Palette
+            heart_pal_.emplace_back(
+                get_palette_gradient(surface->format, { {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
+                                                        {50,    SDL_MapRGBA(surface->format, 50, 0, 50, 255)},
+                                                        {100,   SDL_MapRGBA(surface->format, 255, 0, 100, 255)},
+                                                        {150,   SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
+                                                        {255,   SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
+                                                        }).value());
+
+            // Fire Palette
+            heart_pal_.emplace_back(
+                get_palette_gradient(surface->format, { {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
+                                                        {50,    SDL_MapRGBA(surface->format, 100, 0, 0, 255)},
+                                                        {100,   SDL_MapRGBA(surface->format, 255, 175, 100, 255)},
+                                                        {150,   SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
+                                                        {255,   SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
+                                                        }).value());
+
+            // Icy Blue
+            heart_pal_.emplace_back(
+                get_palette_gradient(surface->format, { {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
+                                                        {50,    SDL_MapRGBA(surface->format, 0, 0, 100, 255)},
+                                                        {100,   SDL_MapRGBA(surface->format, 0, 175, 255, 255)},
+                                                        {150,   SDL_MapRGBA(surface->format, 0, 255, 255, 255)},
+                                                        {255,   SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
+                                                        }).value());
+
+        }
+
         auto init() -> void override
         {
+            init_pal();
+
             // Reset to black
             auto surface = SDL_GetWindowSurface(win_);
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
-            
-            // Fire Palette
-            // auto heart_pal = get_palette_gradient(
-            //                     surface->format, {
-            //                         {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
-            //                         {50,    SDL_MapRGBA(surface->format, 100, 0, 0, 255)},
-            //                         {100,    SDL_MapRGBA(surface->format, 255, 174, 0, 255)},
-            //                         {150,    SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
-            //                         {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
-            //                         });
-
-            // Posh Pink Palette
-            auto heart_pal = get_palette_gradient(
-                                surface->format, {
-                                    {0,     SDL_MapRGBA(surface->format, 0, 0, 0, 255)},
-                                    {50,    SDL_MapRGBA(surface->format, 50, 0, 50, 255)},
-                                    {100,    SDL_MapRGBA(surface->format, 255, 0, 100, 255)},
-                                    {150,    SDL_MapRGBA(surface->format, 255, 255, 0, 255)},
-                                    {255,    SDL_MapRGBA(surface->format, 255, 255, 255, 255)},
-                                    });
-
-
-            heart_pal_ = std::move(heart_pal.value());
-
 
             auto full_size = surface->w * surface->h;
             heart_surface_.resize(full_size, 0);
+
 
             hearts_.emplace_back(std::make_unique<heart_anim>(
                                     1440, 255, 5,
@@ -82,12 +95,16 @@ namespace eg
                 switch (e.type)
                 {
                     case SDL_QUIT: return false;
+                    
+                    case SDL_MOUSEBUTTONUP:
+                        if (e.button.button == SDL_BUTTON_RIGHT)
+                            pal_ix_ = (pal_ix_ + 1) % heart_pal_.size();
+                        break;
                     case SDL_MOUSEWHEEL:
                         fumes_ = fumes_ - (e.wheel.y * 0.01);
-                        
                         if (fumes_ > 4.5) fumes_ = 4.5;
                         else if (fumes_ < 3.9) fumes_ = 3.9;
-
+                        break;
                 }
             } 
 
@@ -118,7 +135,7 @@ namespace eg
                 if (new_c > 255) new_c = 255;
                 else if(new_c < 0) new_c = 0;
 
-                *(data + i) = heart_pal_.at(new_c);
+                *(data + i) = heart_pal_.at(pal_ix_).at(new_c);
                 heart_surface_.at(i) = new_c;
             }
         }
