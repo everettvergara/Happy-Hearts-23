@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include <boost/range/combine.hpp>
+#include <SDL_ttf.h>
 
 #include "video.hpp"
 #include "pal.hpp"
@@ -11,7 +11,7 @@
 namespace eg
 {
 
-    constexpr size_t random_hearts = 10;
+    constexpr size_t random_hearts = 5;
     constexpr Sint particle_size = 2880;
     constexpr Sint init_burn = 255;
     constexpr FP fumes_def = 4.16;
@@ -28,6 +28,8 @@ namespace eg
         std::vector<Uint8>                          heart_surface_;
         FP                                          fumes_ = fumes_def;
         int                                         surface_size_;
+
+
 
     public:
 

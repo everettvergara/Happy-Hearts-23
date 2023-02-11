@@ -16,7 +16,7 @@ namespace eg
         Sint                ini_burn_;
         const FP            inc_;
 
-        std::vector<Uint>   heart_;
+        std::vector<Sint>   heart_;
         std::vector<Uint>   heart_col_;
         std::vector<FP>     heart_r_cache_;
         std::vector<FP>     heart_cos_cache_;
@@ -51,7 +51,7 @@ namespace eg
             return pts_;
         }
 
-        auto get_heart() const -> const std::vector<Uint> &
+        auto get_heart() const -> const std::vector<Sint> &
         {
             return heart_;
         }
@@ -63,6 +63,7 @@ namespace eg
 
         auto recalc(int w, int size, FP rad, FP rot, Sint cx, Sint cy, Sint distort)
         {
+            auto last_row = size - w;
             for (auto i = 0; i < pts_; ++i)
             {
                 auto x = heart_cos_cache_.at(i) * SDL_cos(rot) - heart_sin_cache_.at(i) * SDL_sin(rot);
@@ -77,8 +78,22 @@ namespace eg
                 auto ix = w * ny + nx;
 
                 heart_.at(i) = ix; 
-                heart_.at(i) = heart_.at(i) >= static_cast<Uint>(size) ? 0 : heart_.at(i);
-                heart_col_.at(i) = 255 - rand() % ini_burn_;
+                
+                if (heart_.at(i) < 0)
+                {
+                    heart_.at(i) = 0;
+                    heart_col_.at(i) = 0;
+
+                } else if (heart_.at(i) >= size)
+                {
+                    heart_.at(i) = last_row + (ix % w) - (w * (1 + rand() % 5));
+                    heart_col_.at(i) = 255;
+
+                } else 
+                {
+                    heart_col_.at(i) = 255 - rand() % ini_burn_;
+                }
+
             }
         }
     };
