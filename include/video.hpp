@@ -40,37 +40,43 @@ namespace eg
         {
         }
 
+        virtual auto recalc() -> void
+        {
+        }
+
         virtual auto update() -> void
         {
+            SDL_UpdateWindowSurface(win_);
+        }
+
+
+        virtual auto event() -> bool
+        {
+            SDL_Event e; 
+            while(SDL_PollEvent(&e))
+            { 
+                if (e.type == SDL_QUIT) return false;
+            } 
+
+            return true;
         }
 
         auto run()
         {
-            bool quit = false;
-
             init();
 
             do
             {
                 auto start = SDL_GetTicks();
 
+                if (not event()) break;
+                recalc();
                 update();
-                SDL_UpdateWindowSurface(win_);
-
-                SDL_Event e; 
-                while(SDL_PollEvent(&e))
-                { 
-                    if (e.type == SDL_QUIT) 
-                    {
-                        quit = true;
-                        break; 
-                    }
-                } 
-
+  
                 if (auto elapsed = SDL_GetTicks() - start;
                     elapsed < MSPF_) SDL_Delay(MSPF_ - elapsed);
 
-            } while (not quit);
+            } while (true);
             
         }
     };
