@@ -19,7 +19,7 @@ namespace eg
         std::vector<Uint8>                          heart_surface_;
         FP                                          fumes_ = 4.160;
         Sint                                        cx_, cy_;
-        std::vector<std::tuple<Sint, Sint>>         offset_;
+//        std::vector<std::tuple<Sint, Sint>>         offset_;
         int                                         surface_size_;
 
     public:
@@ -72,15 +72,18 @@ namespace eg
 
         auto init_random_hearts()
         {
-            Sint N = 6;
+            Sint N = 10;
             hearts_.reserve(N);
-            offset_.reserve(N);
+            // offset_.reserve(N);
 
             auto rad = 0.0;
+
+            auto surface = SDL_GetWindowSurface(win_);
+
             for (auto i = 0; i < N; ++i)
             {
-                auto ox = 5.0 * rad * SDL_cos(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
-                auto oy = 5.0 * rad * SDL_sin(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
+                auto ox = rand() % surface->w;
+                auto oy = rand() % surface->h;;
                 rad = 40.0 + rand() % 30;
                 auto rad_min = rad - rand() % 30;
                 auto rad_max = rad + rand() % 30;
@@ -92,10 +95,10 @@ namespace eg
                 auto pi_n = -0.015625 * 5 + 0.015625 * static_cast<FP>(rand() % 10);
 
                 hearts_.emplace_back(std::make_unique<heart_anim>(
-                                        2880, 255, 5,
+                                        2880, 255, 5, ox, oy,
                                         pi, pi_n, pi_min, pi_max,
                                         rad, rad_n, rad_min, rad_max));
-                offset_.emplace_back(ox, oy);
+//                offset_.emplace_back(ox, oy);
             }
         }
 
@@ -125,8 +128,8 @@ namespace eg
                     case SDL_QUIT: return false;
                     
                     case SDL_MOUSEMOTION:
-                        cx_ = e.motion.x;
-                        cy_ = e.motion.y;
+                        // cx_ = e.motion.x;
+                        // cy_ = e.motion.y;
                         break;
 
                     case SDL_MOUSEBUTTONUP:
@@ -151,10 +154,9 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
 
             // Animate hearts
-            for (const auto &[h, o]: boost::combine(hearts_, offset_))
+            for (const auto &h: hearts_)
             {
-                auto [x, y] = o;
-                h->animate(heart_surface_, surface->w, surface_size_, cx_ + x, cy_ + y);
+                h->animate(heart_surface_, surface->w, surface_size_);
             }
 
             // Add hell

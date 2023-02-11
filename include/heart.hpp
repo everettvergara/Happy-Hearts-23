@@ -17,6 +17,8 @@ namespace eg
         Sint                distort_;
         const FP            inc_;
 
+        Sint                cx_, cy_;
+
         std::vector<Uint>   heart_;
         std::vector<Uint>   heart_col_;
         std::vector<FP>     heart_r_cache_;
@@ -25,8 +27,9 @@ namespace eg
 
     public:
 
-        heart(const Sint pts = 720, const Sint ini_burn = 255, const Sint distort = 5)
-            : pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts)
+        heart(const Sint pts = 720, const Sint ini_burn = 255, const Sint distort = 5, const Sint cx = 1024 / 2, const Sint cy = 768 / 2)
+            : pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts),
+                cx_(cx), cy_(cy)
         {
             heart_.resize(pts + 1, 0);
             heart_col_.resize(pts + 1, 0);
@@ -62,15 +65,15 @@ namespace eg
             return heart_col_;
         }
 
-        auto recalc(int w, int size, Sint cx, Sint cy, FP rad, FP rot)
+        auto recalc(int w, int size, FP rad, FP rot)
         {
             for (auto i = 0; i < pts_; ++i)
             {
                 auto x = heart_cos_cache_.at(i) * SDL_cos(rot) - heart_sin_cache_.at(i) * SDL_sin(rot);
                 auto y = heart_sin_cache_.at(i) * SDL_cos(rot) + heart_cos_cache_.at(i) * SDL_sin(rot);
                 
-                auto nx = static_cast<Sint>(cx + rad * heart_r_cache_.at(i) * x);
-                auto ny = static_cast<Sint>(cy - rad * heart_r_cache_.at(i) * y);
+                auto nx = static_cast<Sint>(cx_ + rad * heart_r_cache_.at(i) * x);
+                auto ny = static_cast<Sint>(cy_ - rad * heart_r_cache_.at(i) * y);
 
                 nx -= distort_ + rand() % (1 + distort_ * 2);
                 ny -= distort_ + rand() % (1 + distort_ * 2);
@@ -78,7 +81,7 @@ namespace eg
                 auto ix = w * ny + nx;
 
                 heart_.at(i) = ix; 
-                heart_.at(i) = heart_.at(i) >= size ? 0 : heart_.at(i);
+                heart_.at(i) = heart_.at(i) >= static_cast<Uint>(size) ? 0 : heart_.at(i);
                 heart_col_.at(i) = 255 - rand() % ini_burn_;
             }
         }
