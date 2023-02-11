@@ -50,6 +50,16 @@ namespace eg
             }
         }
 
+        auto set_cx(const int x) 
+        {
+            cx_ = x;
+        }
+
+        auto set_cy(const int y) 
+        {
+            cy_ = y;
+        }
+
         auto get_pts() const -> Sint 
         {
             return pts_;

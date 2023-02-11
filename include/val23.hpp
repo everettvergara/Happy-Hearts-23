@@ -95,10 +95,9 @@ namespace eg
                 auto pi_n = -0.015625 * 5 + 0.015625 * static_cast<FP>(rand() % 10);
 
                 hearts_.emplace_back(std::make_unique<heart_anim>(
-                                        2880, 255, 5, ox, oy,
+                                        2880, 255, 5, ox, oy, 3 + rand() % 20, 
                                         pi, pi_n, pi_min, pi_max,
                                         rad, rad_n, rad_min, rad_max));
-//                offset_.emplace_back(ox, oy);
             }
         }
 
@@ -156,7 +155,7 @@ namespace eg
             // Animate hearts
             for (const auto &h: hearts_)
             {
-                h->animate(heart_surface_, surface->w, surface_size_);
+                h->animate(heart_surface_, surface->w, surface->h, surface_size_);
             }
 
             // Add hell
