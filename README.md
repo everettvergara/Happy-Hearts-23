@@ -1,11 +1,11 @@
 # HappyHearts23
 
-Happy Heart's Day Animation in C++ / SDL for my fellow devs. Not the best animation and not very well optimized but this will do =)
+Happy Heart's Day to my fellow devs. Written in C++ and SDL. Not the best animation and not very well optimized but this will do =)
 
 If you're only interested in the animation, just download the files under 
 
 ```
-bin-win
+bin-win/*
 ```
 
 If you're interested in the heart equation:
