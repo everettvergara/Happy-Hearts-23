@@ -51,8 +51,8 @@ namespace eg
             cy_ = rand() % h;
 
             rad_min_    = rad_min + rand() % (rad_add / 2);
-            rad_max_    = rad_min_ + rand() % (rad_max - rad_min_);
-            rad_        = rad_min_ + rand() % (rad_max_ - rad_min);
+            rad_max_    = rad_min_ + rand() % (1 + rad_max - rad_min_);
+            rad_        = rad_min_ + rand() % (1 + rad_max_ - rad_min);
             rad_n_      = rad_n_min + rand() % rad_n_add;
 
             rot_        = M_PI2 * static_cast<FP>(rand()) / RAND_MAX;

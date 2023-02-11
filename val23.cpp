@@ -19,7 +19,7 @@ auto main(int, char *[]) -> int
         font_init();
 
         auto animation = val23();
-        animation.create_win("Happy Heart's Day Nerds!!!", 800, 600);
+        animation.create_win("Happy Heart's Day Nerds!!!", 1024, 768);
         animation.run();
 
         font_quit();
