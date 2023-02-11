@@ -11,8 +11,6 @@ namespace eg
     private:
         heart heart_;
         
-        Sint cx_, cy_;
-
         FP rot_ = 0.0;
         FP rot_n_ = 0.025;
         FP rot_min_ = -1.0;
@@ -29,9 +27,6 @@ namespace eg
             const Sint ini_burn = 255, 
             const Sint distort = 5,
 
-            const Sint cx = 1024 / 2,
-            const Sint cy = 768 / 2,
-
             const FP rot = 0.0,
             const FP rot_n = 0.025,
             const FP rot_min = -1.0,
@@ -45,8 +40,6 @@ namespace eg
             
             : 
             heart_(pts, ini_burn, distort),
-            cx_(cx),
-            cy_(cy),
             rot_(rot),
             rot_n_(rot_n),
             rot_min_(rot_min),
@@ -58,7 +51,7 @@ namespace eg
         {
         }
 
-        auto animate(std::vector<Uint8> &heart_surface, int w)
+        auto animate(std::vector<Uint8> &heart_surface, int w, int s, Sint cx, Sint cy)
         {
             rot_ += rot_n_;
             if (rot_n_ > 0 and rot_ >= rot_max_) rot_n_ *= -1;
@@ -68,7 +61,7 @@ namespace eg
             if (rad_n_ > 0 and rad_ >= rad_max_) rad_n_ *= -1;
             else if (rad_n_ < 0 and rad_ <= rad_min_) rad_n_ *= -1;
 
-            heart_.recalc(w, cx_, cy_, rad_, rot_);
+            heart_.recalc(w, s, cx, cy, rad_, rot_);
             for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
                 heart_surface.at(ix) = c;
 

@@ -62,7 +62,7 @@ namespace eg
             return heart_col_;
         }
 
-        auto recalc(int w, Sint cx, Sint cy, FP rad, FP rot)
+        auto recalc(int w, int size, Sint cx, Sint cy, FP rad, FP rot)
         {
             for (auto i = 0; i < pts_; ++i)
             {
@@ -78,6 +78,7 @@ namespace eg
                 auto ix = w * ny + nx;
 
                 heart_.at(i) = ix; 
+                heart_.at(i) = heart_.at(i) >= size ? 0 : heart_.at(i);
                 heart_col_.at(i) = 255 - rand() % ini_burn_;
             }
         }

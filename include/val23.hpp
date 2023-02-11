@@ -18,6 +18,9 @@ namespace eg
         Sint                                        pal_ix_ = 0;
         std::vector<Uint8>                          heart_surface_;
         FP                                          fumes_ = 4.160;
+        Sint                                        cx_, cy_;
+        std::vector<std::tuple<Sint, Sint>>         offset_;
+        int                                         surface_size_;
 
     public:
 
@@ -57,8 +60,8 @@ namespace eg
         auto init_heart_surface()
         {
             auto surface = SDL_GetWindowSurface(win_);
-            auto full_size = surface->w * surface->h;
-            heart_surface_.resize(full_size, 0);
+            surface_size_ = surface->w * surface->h;
+            heart_surface_.resize(surface_size_, 0);
         }
 
         auto init_black_surface()
@@ -69,24 +72,57 @@ namespace eg
 
         auto init_random_hearts()
         {
-            hearts_.reserve(3);
-            hearts_.emplace_back(std::make_unique<heart_anim>(
-                                    1440, 255, 5,
-                                    1024 / 2, 768 / 2,
-                                    0, 0.0625, -1.0, +1.0,
-                                    40.0, 5, 25.0, 60.0));
+            Sint N = 3;
+            hearts_.reserve(N);
+            offset_.reserve(N);
 
-            hearts_.emplace_back(std::make_unique<heart_anim>(
-                                    1440, 255, 3,
-                                    1024 / 2 + 1024 / 4, 768 / 3,
-                                    0, 0.0625, -M_PI2, +M_PI2,
-                                    40.0, -1, 10.0, 50.0));
+            auto rad = 0.0;
+            for (auto i = 0; i < N; ++i)
+            {
+                auto ox = 4.0 * rad * SDL_cos(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
+                auto oy = 4.0 * rad * SDL_sin(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
+                rad = 40.0 + rand() % 30;
+                auto rad_min = rad - rand() % 30;
+                auto rad_max = rad + rand() % 30;
+                auto rad_n = -5 + rand() % 10;
 
-            hearts_.emplace_back(std::make_unique<heart_anim>(
-                                    1440, 255, 3,
-                                    1024 / 2 + 1024 / 4, 2 * 768 / 3,
-                                    0, -0.0625, -4.0, +4.0,
-                                    10.0, +5, 10.0, 50.0));
+                auto pi = M_PI2 * static_cast<FP>(rand()) / RAND_MAX;
+                auto pi_min = pi - M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
+                auto pi_max = pi + M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
+                auto pi_n = -0.6250 + 0.03125 * static_cast<FP>(rand() % 20);
+
+                hearts_.emplace_back(std::make_unique<heart_anim>(
+                                        1440 * 2, 255, 5,
+                                        pi, pi_n, pi_min, pi_max,
+                                        rad, rad_n, rad_min, rad_max));
+                offset_.emplace_back(ox, oy);
+            }
+
+
+            // hearts_.emplace_back(std::make_unique<heart_anim>(
+            //                         1440, 255, 5,
+            //                         0, 0.0625, -1.0, +1.0,
+            //                         40.0, 5, 25.0, 60.0));
+
+
+            // hearts_.emplace_back(std::make_unique<heart_anim>(
+            //                         1440, 255, 3,
+            //                         cx_ + 1024 / 4, 768 / 3,
+            //                         0, 0.0625, -M_PI2, +M_PI2,
+            //                         40.0, -1, 10.0, 50.0));
+
+            // hearts_.emplace_back(std::make_unique<heart_anim>(
+            //                         1440, 255, 3,
+            //                         1024 / 2 + 1024 / 4, 2 * 768 / 3,
+            //                         0, -0.0625, -4.0, +4.0,
+            //                         10.0, +5, 10.0, 50.0));
+        }
+
+        auto init_cxy()
+        {
+            auto surface = SDL_GetWindowSurface(win_);
+            cx_ = surface->w / 2;
+            cy_ = surface->h / 3;
         }
 
         auto init() -> void override
@@ -94,6 +130,7 @@ namespace eg
             init_pal();
             init_heart_surface();
             init_black_surface();
+            init_cxy();
             init_random_hearts();
         }
 
@@ -106,10 +143,16 @@ namespace eg
                 {
                     case SDL_QUIT: return false;
                     
+                    case SDL_MOUSEMOTION:
+                        // cx_ = e.motion.x;
+                        // cy_ = e.motion.y;
+                        break;
+
                     case SDL_MOUSEBUTTONUP:
                         if (e.button.button == SDL_BUTTON_RIGHT)
                             pal_ix_ = (pal_ix_ + 1) % heart_pal_.size();
                         break;
+
                     case SDL_MOUSEWHEEL:
                         fumes_ = fumes_ - (e.wheel.y * 0.01);
                         if (fumes_ > 4.5) fumes_ = 4.5;
@@ -127,8 +170,11 @@ namespace eg
             auto surface = SDL_GetWindowSurface(win_);
 
             // Animate hearts
-            for (auto &h : hearts_)
-                h->animate(heart_surface_, surface->w);
+            for (const auto &[h, o]: boost::combine(hearts_, offset_))
+            {
+                auto [x, y] = o;
+                h->animate(heart_surface_, surface->w, surface_size_, cx_ + x, cy_ + y);
+            }
 
             // Fire effect
             auto e = (surface->h * surface->w) - surface->w - surface->w;
