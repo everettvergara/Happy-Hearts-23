@@ -74,7 +74,6 @@ namespace eg
         {
             Sint N = 10;
             hearts_.reserve(N);
-            // offset_.reserve(N);
 
             auto rad = 0.0;
 
@@ -95,7 +94,7 @@ namespace eg
                 auto pi_n = -0.015625 * 5 + 0.015625 * static_cast<FP>(rand() % 10);
 
                 hearts_.emplace_back(std::make_unique<heart_anim>(
-                                        2880, 255, 5, ox, oy, 3 + rand() % 20, 
+                                        2880, 255, 2, ox, oy, 3 + rand() % 20, 
                                         pi, pi_n, pi_min, pi_max,
                                         rad, rad_n, rad_min, rad_max));
             }

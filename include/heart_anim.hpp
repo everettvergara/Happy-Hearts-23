@@ -10,6 +10,7 @@ namespace eg
     {
     private:
         heart heart_;
+        Sint cx_, cy_;
         Sint beats_ = 3;
         
         FP rot_ = 0.0;
@@ -43,7 +44,8 @@ namespace eg
             )
             
             : 
-            heart_(pts, ini_burn, distort, cx, cy),
+            heart_(pts, ini_burn, distort),
+            cx_(cx), cy_(cy),
             beats_(beats),
             rot_(rot),
             rot_n_(rot_n),
@@ -58,8 +60,8 @@ namespace eg
 
         auto random_spawn(const int w, const int h)
         {
-            heart_.set_cx(rand() % w);
-            heart_.set_cy(rand() % h);
+            cx_ = rand() % w;
+            cx_ = rand() % h;
 
             rad_ = 40.0 + rand() % 30;
             rad_min_ = rad_ - rand() % 30;
@@ -88,7 +90,7 @@ namespace eg
                 rad_n_ *= -1;
             }
 
-            heart_.recalc(w, s, rad_, rot_);
+            heart_.recalc(w, s, rad_, rot_, cx_, cy_);
             for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
                 heart_surface.at(ix) = c;
 
