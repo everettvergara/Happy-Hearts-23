@@ -14,7 +14,6 @@ namespace eg
         
         Sint                pts_;
         Sint                ini_burn_;
-        Sint                distort_;
         const FP            inc_;
 
         std::vector<Uint>   heart_;
@@ -25,8 +24,8 @@ namespace eg
 
     public:
 
-        heart(const Sint pts = 720, const Sint ini_burn = 255, const Sint distort = 5)
-            : pts_(pts), ini_burn_(ini_burn), distort_(distort), inc_(M_PI2 / pts)
+        heart(const Sint pts = 720, const Sint ini_burn = 255)
+            : pts_(pts), ini_burn_(ini_burn), inc_(M_PI2 / pts)
         {
             heart_.resize(pts + 1, 0);
             heart_col_.resize(pts + 1, 0);
@@ -62,7 +61,7 @@ namespace eg
             return heart_col_;
         }
 
-        auto recalc(int w, int size, FP rad, FP rot, Sint cx, Sint cy)
+        auto recalc(int w, int size, FP rad, FP rot, Sint cx, Sint cy, Sint distort)
         {
             for (auto i = 0; i < pts_; ++i)
             {
@@ -72,8 +71,8 @@ namespace eg
                 auto nx = static_cast<Sint>(cx + rad * heart_r_cache_.at(i) * x);
                 auto ny = static_cast<Sint>(cy - rad * heart_r_cache_.at(i) * y);
 
-                nx -= distort_ + rand() % (1 + distort_ * 2);
-                ny -= distort_ + rand() % (1 + distort_ * 2);
+                nx -= distort + rand() % (1 + distort * 2);
+                ny -= distort + rand() % (1 + distort * 2);
 
                 auto ix = w * ny + nx;
 

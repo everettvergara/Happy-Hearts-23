@@ -70,33 +70,14 @@ namespace eg
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
         }
 
-        auto init_random_hearts()
+        auto init_random_hearts(const size_t N = 3)
         {
-            Sint N = 10;
             hearts_.reserve(N);
-
-            auto rad = 0.0;
-
             auto surface = SDL_GetWindowSurface(win_);
-
             for (auto i = 0; i < N; ++i)
             {
-                auto ox = rand() % surface->w;
-                auto oy = rand() % surface->h;;
-                rad = 40.0 + rand() % 30;
-                auto rad_min = rad - rand() % 30;
-                auto rad_max = rad + rand() % 30;
-                auto rad_n = -5 + rand() % 10;
-
-                auto pi = M_PI2 * static_cast<FP>(rand()) / RAND_MAX;
-                auto pi_min = pi - M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
-                auto pi_max = pi + M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
-                auto pi_n = -0.015625 * 5 + 0.015625 * static_cast<FP>(rand() % 10);
-
-                hearts_.emplace_back(std::make_unique<heart_anim>(
-                                        2880, 255, 2, ox, oy, 3 + rand() % 20, 
-                                        pi, pi_n, pi_min, pi_max,
-                                        rad, rad_n, rad_min, rad_max));
+                auto &hanim = hearts_.emplace_back(std::make_unique<heart_anim>(2880, 255));
+                hanim->random_spawn(surface->w, surface->h);
             }
         }
 
@@ -126,8 +107,6 @@ namespace eg
                     case SDL_QUIT: return false;
                     
                     case SDL_MOUSEMOTION:
-                        // cx_ = e.motion.x;
-                        // cy_ = e.motion.y;
                         break;
 
                     case SDL_MOUSEBUTTONUP:

@@ -10,6 +10,8 @@ namespace eg
     {
     private:
         heart heart_;
+        
+        Sint distort_;
         Sint cx_, cy_;
         Sint beats_ = 3;
         
@@ -24,6 +26,12 @@ namespace eg
         FP rad_max_ = 80.0;
 
     public:
+        heart_anim(const Sint pts = 720, const Sint ini_burn = 255)
+            : heart_(pts, ini_burn)
+
+        {
+        }
+
         heart_anim(
             const Sint pts = 720, 
             const Sint ini_burn = 255, 
@@ -44,7 +52,8 @@ namespace eg
             )
             
             : 
-            heart_(pts, ini_burn, distort),
+            heart_(pts, ini_burn),
+            distort_(distort),
             cx_(cx), cy_(cy),
             beats_(beats),
             rot_(rot),
@@ -73,7 +82,9 @@ namespace eg
             rot_max_ = rot_ + M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
             rot_n_ = -0.015625 * 5 + 0.015625 * static_cast<FP>(rand() % 10);            
 
-            beats_ = 3 + rand() % 10;
+            beats_ = 3 + rand() % 3;
+            distort_ = 0;
+
         }
 
         auto animate(std::vector<Uint8> &heart_surface, int w, int h, int s)
@@ -83,14 +94,19 @@ namespace eg
             else if (rot_n_ < 0 and rot_ <= rot_min_) rot_n_ *= -1;
 
             rad_ += rad_n_;
-            if (rad_n_ > 0 and rad_ >= rad_max_) rad_n_ *= -1;
+            if (rad_n_ > 0 and rad_ >= rad_max_) 
+            {
+                distort_ += 2;
+                rad_n_ *= -1;
+            }
             else if (rad_n_ < 0 and rad_ <= rad_min_) 
             {
                 --beats_;
                 rad_n_ *= -1;
+                distort_ += 2;
             }
 
-            heart_.recalc(w, s, rad_, rot_, cx_, cy_);
+            heart_.recalc(w, s, rad_, rot_, cx_, cy_, distort_);
             for (const auto [ix, c] : boost::combine(heart_.get_heart(), heart_.get_col()))
                 heart_surface.at(ix) = c;
 
