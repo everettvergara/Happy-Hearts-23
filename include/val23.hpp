@@ -14,6 +14,7 @@ namespace eg
     constexpr size_t random_hearts = 5;
     constexpr Sint particle_size = 2880;
     constexpr Sint init_burn = 255;
+    constexpr Sint burn_at = 20;
     constexpr FP fumes_def = 4.16;
     constexpr FP fumes_min = 3.9;
     constexpr FP fumes_max = 4.9;
@@ -21,6 +22,7 @@ namespace eg
 
     class val23 : public video 
     {
+    
     private:
         std::vector<std::unique_ptr<heart_anim>>    hearts_;
         std::vector<std::vector<Uint32>>            heart_pal_;
@@ -28,8 +30,6 @@ namespace eg
         std::vector<Uint8>                          heart_surface_;
         FP                                          fumes_ = fumes_def;
         int                                         surface_size_;
-
-
 
     public:
 
@@ -133,15 +133,13 @@ namespace eg
 
             // Animate hearts
             for (const auto &h: hearts_)
-            {
                 h->animate(heart_surface_, surface->w, surface->h, surface_size_);
-            }
 
             // Add hell
             auto last_row = surface->w * (surface->h - 1);
             for (auto i = last_row; i < last_row + surface->w; ++i)
             {
-                if (rand() % 100 >= 20)
+                if (rand() % 100 >= burn_at)
                 {
                     auto c = 200 + rand() % 56;
                     heart_surface_.at(i) = c;

@@ -86,7 +86,7 @@ namespace eg
 
                 } else if (heart_.at(i) >= size)
                 {
-                    heart_.at(i) = last_row + (ix % w) - (w * (1 + rand() % 5));
+                    heart_.at(i) = last_row + (ix % w) - (w * (1 + rand() % 10));
                     heart_col_.at(i) = 255;
 
                 } else 
