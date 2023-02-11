@@ -31,7 +31,29 @@ namespace eg
         FP                                          fumes_ = fumes_def;
         int                                         surface_size_;
 
+        TTF_Font                                    *font_ = NULL;
+        SDL_Surface                                 *text_ = NULL;
+
     public:
+        ~val23()
+        {
+            if (text_ != NULL) SDL_FreeSurface(text_);
+        }
+        auto init_font()
+        {
+            font_ = TTF_OpenFont("calibri.ttf", 12);
+            if (font_ == NULL)
+                throw std::runtime_error("Could not load the default font!");
+
+            SDL_Surface* text = TTF_RenderText_Solid(font_, "H A P P Y   H E A R T S   D A Y ! ! !", SDL_Color {255, 255, 255, 255});
+            auto surface = SDL_GetWindowSurface(win_);
+            text_ = SDL_ConvertSurface(text, surface->format, 0);
+
+            SDL_FreeSurface(text);
+
+            if (text_ == 0)
+                 throw std::runtime_error("Could not create surface from ttf!");
+        }
 
         auto init_pal()
         {
@@ -96,6 +118,7 @@ namespace eg
             init_heart_surface();
             init_black_surface();
             init_random_hearts();
+            init_font();
         }
 
         auto event() -> bool override
@@ -163,6 +186,15 @@ namespace eg
                 *(data + i) = heart_pal_.at(pal_ix_).at(new_c);
                 heart_surface_.at(i) = new_c;
             }
+
+            // Show happy hearts text
+            SDL_Rect center {   .x = surface->w / 2 - text_->w / 2,
+                                .y = surface->h / 2 - text_->h / 2,
+                                .w = text_->w,
+                                .h = text_->h
+                            };
+
+            SDL_BlitSurface(text_, NULL, surface, &center);
         }
     };
 }
