@@ -45,7 +45,7 @@ namespace eg
             if (font_ == NULL)
                 throw std::runtime_error("Could not load the default font!");
 
-            SDL_Surface* text = TTF_RenderText_Solid(font_, "H A P P Y   H E A R T S   D A Y ! ! !", SDL_Color {255, 255, 255, 255});
+            SDL_Surface* text = TTF_RenderText_Solid(font_, "H A P P Y   H E A R T S   D A Y   N E R D ! ! !", SDL_Color {255, 255, 255, 255});
             auto surface = SDL_GetWindowSurface(win_);
             text_ = SDL_ConvertSurface(text, surface->format, 0);
 
