@@ -70,11 +70,11 @@ namespace eg
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
         }
 
-        auto init_random_hearts(const size_t N = 3)
+        auto init_random_hearts(const size_t N = 10)
         {
             hearts_.reserve(N);
             auto surface = SDL_GetWindowSurface(win_);
-            for (auto i = 0; i < N; ++i)
+            for (size_t i = 0; i < N; ++i)
             {
                 auto &hanim = hearts_.emplace_back(std::make_unique<heart_anim>(2880, 255));
                 hanim->random_spawn(surface->w, surface->h);
