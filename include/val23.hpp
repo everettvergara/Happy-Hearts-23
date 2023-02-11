@@ -72,15 +72,15 @@ namespace eg
 
         auto init_random_hearts()
         {
-            Sint N = 3;
+            Sint N = 6;
             hearts_.reserve(N);
             offset_.reserve(N);
 
             auto rad = 0.0;
             for (auto i = 0; i < N; ++i)
             {
-                auto ox = 4.0 * rad * SDL_cos(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
-                auto oy = 4.0 * rad * SDL_sin(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
+                auto ox = 5.0 * rad * SDL_cos(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
+                auto oy = 5.0 * rad * SDL_sin(M_PI2 * (static_cast<FP>(rand()) / RAND_MAX));
                 rad = 40.0 + rand() % 30;
                 auto rad_min = rad - rand() % 30;
                 auto rad_max = rad + rand() % 30;
@@ -89,40 +89,21 @@ namespace eg
                 auto pi = M_PI2 * static_cast<FP>(rand()) / RAND_MAX;
                 auto pi_min = pi - M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
                 auto pi_max = pi + M_PI2 * (static_cast<FP>(rand()) / RAND_MAX);
-                auto pi_n = -0.6250 + 0.03125 * static_cast<FP>(rand() % 20);
+                auto pi_n = -0.015625 * 5 + 0.015625 * static_cast<FP>(rand() % 10);
 
                 hearts_.emplace_back(std::make_unique<heart_anim>(
-                                        1440 * 2, 255, 5,
+                                        2880, 255, 5,
                                         pi, pi_n, pi_min, pi_max,
                                         rad, rad_n, rad_min, rad_max));
                 offset_.emplace_back(ox, oy);
             }
-
-
-            // hearts_.emplace_back(std::make_unique<heart_anim>(
-            //                         1440, 255, 5,
-            //                         0, 0.0625, -1.0, +1.0,
-            //                         40.0, 5, 25.0, 60.0));
-
-
-            // hearts_.emplace_back(std::make_unique<heart_anim>(
-            //                         1440, 255, 3,
-            //                         cx_ + 1024 / 4, 768 / 3,
-            //                         0, 0.0625, -M_PI2, +M_PI2,
-            //                         40.0, -1, 10.0, 50.0));
-
-            // hearts_.emplace_back(std::make_unique<heart_anim>(
-            //                         1440, 255, 3,
-            //                         1024 / 2 + 1024 / 4, 2 * 768 / 3,
-            //                         0, -0.0625, -4.0, +4.0,
-            //                         10.0, +5, 10.0, 50.0));
         }
 
         auto init_cxy()
         {
             auto surface = SDL_GetWindowSurface(win_);
             cx_ = surface->w / 2;
-            cy_ = surface->h / 3;
+            cy_ = surface->h / 2;
         }
 
         auto init() -> void override
@@ -144,8 +125,8 @@ namespace eg
                     case SDL_QUIT: return false;
                     
                     case SDL_MOUSEMOTION:
-                        // cx_ = e.motion.x;
-                        // cy_ = e.motion.y;
+                        cx_ = e.motion.x;
+                        cy_ = e.motion.y;
                         break;
 
                     case SDL_MOUSEBUTTONUP:
@@ -176,8 +157,19 @@ namespace eg
                 h->animate(heart_surface_, surface->w, surface_size_, cx_ + x, cy_ + y);
             }
 
+            // Add hell
+            auto last_row = surface->w * (surface->h - 1);
+            for (auto i = last_row; i < last_row + surface->w; ++i)
+            {
+                if (rand() % 100 >= 99)
+                {
+                    auto c = rand() % 255;
+                    heart_surface_.at(i) = c;
+                }
+            }
+
             // Fire effect
-            auto e = (surface->h * surface->w) - surface->w - surface->w;
+            auto e = (surface->h * surface->w) - surface->w - 2;
             auto data = static_cast<Uint32 *>(surface->pixels);
             for (auto i = 0; i < e; ++i)
             {

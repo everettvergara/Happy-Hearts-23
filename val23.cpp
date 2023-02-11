@@ -26,7 +26,7 @@ auto main(int, char *[]) -> int
         video_quit();
 
     } catch(const std::exception &e)
-    
+
     {
         std::cerr << e.what() << '\n';
         return -1;
@@ -34,6 +34,7 @@ auto main(int, char *[]) -> int
     
     return 0;
 }
+
 
 
 
